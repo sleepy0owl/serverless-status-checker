@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sm-status-checker
+
+  Sample SAM Template for sm-status-checker
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+    Environment:
+      Variables:
+        RECIPIENT: souravcristiano502@gmail.com
+
+Resources:
+  serviceStatusCheckFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Events:
+        CWSchedule:
+          Type: Schedule
+          Properties:
+            Description: "lambda status check event"
+            Schedule: 'rate(5 minutes)'
+            Name: StatusCheckSchedule
+            Enabled: false
+      Policies:
+      - Statement:
+        - Sid: SMSESSendEmailPolicy
+          Effect: Allow
+          Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+          Resource: 'arn:aws:ses:us-east-1:873102235883:identity/sourav.mondal@antstack.io'
+
+# Outputs:
+#   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+#   # Find out more about other implicit resources you can reference within SAM
+#   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+#   serviceStatusCheckFunction:
+#     Description: "Hello World Lambda Function ARN"
+#     Value: !GetAtt serviceStatusCheckFunction.Arn
+#   serviceStatusCheckFunctionIamRole:
+#     Description: "Implicit IAM Role created for Hello World function"
+#     Value: !GetAtt serviceStatusCheckFunctionRole.Arn
